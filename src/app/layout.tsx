@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JetBrains_Mono, Source_Serif_4, Space_Grotesk } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -39,16 +40,18 @@ const themeBootScript = `(function(){try{var t=localStorage.getItem('urte-theme'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="fox" data-mode="light" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
       <body
         className={`${spaceGrotesk.variable} ${sourceSerif.variable} ${jetbrains.variable}`}
       >
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
+        <ThemeProvider>
+          <SiteHeader />
+          <main>{children}</main>
+          <SiteFooter />
+        </ThemeProvider>
       </body>
     </html>
   );

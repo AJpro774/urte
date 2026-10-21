@@ -1,6 +1,7 @@
 "use client";
 
-import { THEME_META, THEMES, type ModeId, type ThemeId } from "@/lib/themes/tokens";
+import { useEffect, useState } from "react";
+import { isThemeId, THEME_META, THEMES, type ModeId, type ThemeId } from "@/lib/themes/tokens";
 
 function apply(theme: ThemeId, mode: ModeId) {
   const root = document.documentElement;
@@ -23,6 +24,16 @@ export function ThemeSwitcher({
   currentTheme?: ThemeId;
   currentMode?: ModeId;
 }) {
+  const [theme, setTheme] = useState<ThemeId>(currentTheme);
+  const [mode, setMode] = useState<ModeId>(currentMode);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("urte-theme");
+    const storedMode = (localStorage.getItem("urte-mode") as ModeId) || currentMode;
+    if (isThemeId(storedTheme)) setTheme(storedTheme);
+    setMode(storedMode);
+  }, [currentMode]);
+
   return (
     <div className="theme-switcher" role="group" aria-label="Theme">
       {THEMES.map((id) => {
@@ -34,8 +45,11 @@ export function ThemeSwitcher({
             className="theme-swatch"
             title={`${meta.label} — ${meta.description}`}
             aria-label={meta.label}
-            aria-pressed={currentTheme === id}
-            onClick={() => apply(id, currentMode)}
+            aria-pressed={theme === id}
+            onClick={() => {
+              apply(id, mode);
+              setTheme(id);
+            }}
           >
             {meta.swatches.map((c) => (
               <span key={c} style={{ background: c }} />
@@ -49,10 +63,9 @@ export function ThemeSwitcher({
         style={{ padding: "0.25rem 0.55rem", fontSize: "0.75rem" }}
         onClick={() => {
           const order: ModeId[] = ["system", "light", "dark"];
-          const stored = (localStorage.getItem("urte-mode") as ModeId) || currentMode;
-          const next = order[(order.indexOf(stored) + 1) % order.length];
-          const theme = (localStorage.getItem("urte-theme") as ThemeId) || currentTheme;
+          const next = order[(order.indexOf(mode) + 1) % order.length];
           apply(theme, next);
+          setMode(next);
         }}
         aria-label="Toggle light and dark mode"
       >
